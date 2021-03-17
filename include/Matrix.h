@@ -21,9 +21,10 @@ namespace ssml
 
 		template<uint8_t NC>
 		Matrix<R, NC, T> operator*(const Matrix<C, NC, T>& matrix);
+	
+		bool operator==(const Matrix<R, C, T>& matrix);
+		bool operator!=(const Matrix<R, C, T>& matrix);
 	};
-
-	using Matf4x4 = Matrix<4,4,float>;
 }
 
 #include "Matrix.inl"

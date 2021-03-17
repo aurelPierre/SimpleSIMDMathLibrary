@@ -42,4 +42,24 @@ namespace ssml
 		mult(matrix, m);
 		return m;
 	}
+
+	template<uint8_t R, uint8_t C, class T>
+	bool Matrix<R, C, T>::operator==(const Matrix<R, C, T>& matrix)
+	{
+		return !((*this) != matrix);
+	}
+
+	template<uint8_t R, uint8_t C, class T>
+	bool Matrix<R, C, T>::operator!=(const Matrix<R, C, T>& matrix)
+	{
+		for(size_t i = 0; i < R; ++i)
+		{
+			for(size_t j = 0; j < C; ++j)
+			{
+				if(_data[i][j] != matrix._data[i][j])
+			 		return true;	
+			}
+		}
+		return false;
+	}
 }

@@ -1,3 +1,6 @@
+#include <cstdio>
+#include <mm_malloc.h>
+#include <xmmintrin.h>
 namespace ssml
 {
 	template<uint8_t R>
@@ -37,5 +40,25 @@ namespace ssml
 		Matrix<R, 4, float> m;
 		mult(matrix, m);
 		return m;
+	}
+
+	template<uint8_t R>
+	bool Matrix<R, 4, float>::operator==(const Matrix<R, 4, float>& matrix)	
+	{
+		return !((*this) != matrix);
+	}
+
+	template<uint8_t R>
+	bool Matrix<R, 4, float>::operator!=(const Matrix<R, 4, float>& matrix)
+	{
+		for(size_t i = 0; i < R; ++i)
+		{
+			for(size_t j = 0; j < 4; ++j)
+			{
+				if(_data[i][j] != matrix._data[i][j])
+					return true;
+			}
+		}
+		return false;
 	}
 }
