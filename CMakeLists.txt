@@ -35,8 +35,6 @@ endif(CODE_COVERAGE AND CMAKE_CXX_COMPILER_ID MATCHES "GNU|Clang")
 
 add_library(SSML STATIC)
 
-target_compile_options(SSML INTERFACE -O3 -Wall)
-
 file(GLOB_RECURSE SOURCES src/*)
 target_sources(SSML PUBLIC ${SOURCES})
 target_include_directories(SSML PUBLIC include/)
