@@ -62,4 +62,16 @@ namespace ssml
 		}
 		return false;
 	}
+
+	template<uint8_t R, uint8_t C, class T>
+	std::ostream& operator<<(std::ostream& os, const Matrix<R, C, T>& obj)
+	{
+		for(size_t i = 0; i < R; ++i)
+		{
+			for(size_t j = 0; j < C; ++j)
+				os << '[' << obj._data[i][j] << ']';
+			os << '\n';
+		}
+		return os;
+	}
 }
