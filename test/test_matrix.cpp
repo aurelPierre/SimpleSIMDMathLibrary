@@ -3,6 +3,7 @@
 #include "Logger.h"
 
 using Matf4x4 = ssml::Matrix<4,4,float>;
+using Matf3x3 = ssml::Matrix<3,3,float>;
 
 void logMatrix(const Matf4x4& matrix)
 {
