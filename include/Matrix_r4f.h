@@ -3,6 +3,8 @@
 
 #include "Matrix.h"
 
+#include <nmmintrin.h> // used for SSE 4.2
+
 namespace ssml
 {
 	template<uint8_t R>

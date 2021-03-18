@@ -1,6 +1,3 @@
-#include <cstdio>
-#include <mm_malloc.h>
-#include <xmmintrin.h>
 namespace ssml
 {
 	template<uint8_t R>
