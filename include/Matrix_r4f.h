@@ -17,12 +17,17 @@ namespace ssml
 		Matrix();
 		Matrix(float data[4 * R]);
 
-		void mult(const Matrix<4, 4, float>& matrix, Matrix<R, 4, float>& out);
+		Matrix<R, 4, float> scalarMult(const Matrix<R, 4, float>& matrix) const;
+		void mult(const Matrix<4, 4, float>& matrix, Matrix<R, 4, float>& out) const;
 
-		Matrix<R, 4, float> operator*(const Matrix<4, 4, float>& matrix);
+		Matrix<R, 4, float> transpose() const;
+		float determinant() const;
+		Matrix<R, 4, float> inverse() const;
 
-		bool operator==(const Matrix<R, 4, float>& matrix);
-		bool operator!=(const Matrix<R, 4, float>& matrix);
+		Matrix<R, 4, float> operator*(const Matrix<4, 4, float>& matrix) const;
+
+		bool operator==(const Matrix<R, 4, float>& matrix) const;
+		bool operator!=(const Matrix<R, 4, float>& matrix) const;
 	};
 }
 

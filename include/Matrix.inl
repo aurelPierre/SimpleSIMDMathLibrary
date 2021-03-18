@@ -1,5 +1,3 @@
-#include <bits/c++config.h>
-#include <type_traits>
 namespace ssml
 {
 	template<uint8_t R, uint8_t C, class T>
@@ -51,6 +49,8 @@ namespace ssml
 	template<uint8_t R, uint8_t C, class T>
 	Matrix<R, C, T> Matrix<R, C, T>::transpose() const
 	{
+		static_assert(is_squared, "matrix is not squared");
+
 		Matrix<R, C, T> m;
 		for(size_t i = 0; i < R; ++i)
 		{
@@ -103,6 +103,8 @@ namespace ssml
 	template<uint8_t R, uint8_t C, class T>
 	Matrix<R, C, T> Matrix<R, C, T>::inverse() const
 	{
+		static_assert(is_squared, "matrix is not squared");
+
 		T det = determinant();
 		if(det == 0.f)
 			return {};

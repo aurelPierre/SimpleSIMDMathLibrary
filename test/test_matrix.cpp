@@ -1,4 +1,3 @@
-#include "Matrix.h"
 #include "Matrix_r4f.h"
 
 #include "Logger.h"
@@ -38,6 +37,25 @@ int main(int argc, char** argv)
 		
 		ASSERT((result == r), "Matf4x4::operator* is incorrect")
 		LOG(tlbx::INFO, "Unit test Matf4x4::operator* is done.")
+	}
+
+	{
+		LOG(tlbx::INFO, "Starting unit test Matf4x4::transpose...")
+
+		ssml::Matf4 m(test_data4);
+		ssml::Matf4 r = m.transpose();
+
+		float result_data[16] = {
+			5.f, 2.f, 8.f, 3.f,
+			7.f, 3.f, 10.f, 3.f,
+			9.f, 3.f, 2.f, 4.f,
+			10.f, 8.f, 3.f, 8.f
+		};
+
+		ssml::Matf4 result(result_data);
+
+		ASSERT((result == r), "Matf4x4::transpose is incorrect")
+		LOG(tlbx::INFO, "Unit test Matf4x4::transpose is done.")
 	}
 
 	{
@@ -103,7 +121,7 @@ int main(int argc, char** argv)
 
 	{
 		ssml::Matf3 m;
-		std::cout << m;
+		std::cout << m << std::endl;
 	}
 
 	return 0;

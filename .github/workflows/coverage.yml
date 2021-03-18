@@ -58,4 +58,4 @@ jobs:
         # token: ${{ secrets.CODECOV_TOKEN }} # not required for public repos
         name: ${{ github.repository }} # optional
         fail_ci_if_error: true # optional (default = false)
-        functionalities: gcov
+          #functionalities: gcov

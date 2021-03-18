@@ -1,3 +1,4 @@
+#include <xmmintrin.h>
 namespace ssml
 {
 	template<uint8_t R>
@@ -20,7 +21,16 @@ namespace ssml
 	}
 
 	template<uint8_t R>
-	void Matrix<R, 4, float>::mult(const Matrix<4, 4, float>& matrix, Matrix<R, 4, float>& out)
+	Matrix<R, 4, float> Matrix<R, 4, float>::scalarMult(const Matrix<R, 4, float>& matrix) const
+	{
+		Matrix<R, 4, float> m;
+		for(size_t i = 0; i < R; ++i)
+			m._data[i] = _mm_mul_ps(_data[i], matrix._data[i]);
+		return m;
+	}
+
+	template<uint8_t R>
+	void Matrix<R, 4, float>::mult(const Matrix<4, 4, float>& matrix, Matrix<R, 4, float>& out) const
 	{
 		for(size_t i = 0; i < R; ++i)
 		{
@@ -32,7 +42,41 @@ namespace ssml
 	}
 
 	template<uint8_t R>
-	Matrix<R, 4, float> Matrix<R, 4, float>::operator*(const Matrix<4, 4, float>& matrix)
+	Matrix<R, 4, float> Matrix<R, 4, float>::transpose() const
+	{
+		static_assert(is_squared, "matrix is not squared");
+	
+		__m128 r0 = _mm_unpacklo_ps(_data[0], _data[1]);
+		__m128 r1 = _mm_unpackhi_ps(_data[0], _data[1]);
+
+		__m128 r2 = _mm_unpacklo_ps(_data[2], _data[3]);
+		__m128 r3 = _mm_unpackhi_ps(_data[2], _data[3]);
+
+		Matrix<R, 4, float> m;
+
+		m._data[0] = _mm_movelh_ps(r0, r2);
+		m._data[1] = _mm_movehl_ps(r2, r0);
+
+		m._data[2] = _mm_movelh_ps(r1, r3);
+		m._data[3] = _mm_movehl_ps(r3, r1);
+
+		return m;
+	}
+
+	template<uint8_t R>
+	float Matrix<R, 4, float>::determinant() const
+	{
+		static_assert(is_squared, "matrix is not squared");
+	}
+
+	template<uint8_t R>
+	Matrix<R, 4, float> Matrix<R, 4, float>::inverse() const
+	{
+		static_assert(is_squared, "matrix is not squared");
+	}
+
+	template<uint8_t R>
+	Matrix<R, 4, float> Matrix<R, 4, float>::operator*(const Matrix<4, 4, float>& matrix) const
 	{
 		Matrix<R, 4, float> m;
 		mult(matrix, m);
@@ -40,13 +84,13 @@ namespace ssml
 	}
 
 	template<uint8_t R>
-	bool Matrix<R, 4, float>::operator==(const Matrix<R, 4, float>& matrix)	
+	bool Matrix<R, 4, float>::operator==(const Matrix<R, 4, float>& matrix)	const
 	{
 		return !((*this) != matrix);
 	}
 
 	template<uint8_t R>
-	bool Matrix<R, 4, float>::operator!=(const Matrix<R, 4, float>& matrix)
+	bool Matrix<R, 4, float>::operator!=(const Matrix<R, 4, float>& matrix) const
 	{
 		for(size_t i = 0; i < R; ++i)
 		{
