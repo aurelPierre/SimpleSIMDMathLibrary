@@ -65,26 +65,33 @@ namespace ssml
 	{
 		static_assert(is_squared, "matrix is not squared");
 		
-		T det{};
-		for(size_t i = 0; i < C; ++i)
+		T det { 1.f };
+		
+		// LU decomposition
+		T lu[R][C];
+		for(size_t i = 0; i < R; ++i)
 		{
-			Matrix<R - 1, C - 1, T> m;
-			for(size_t j = 1; j < R; ++j)
+			for(size_t j = i; j < C; ++j)
 			{
-				for(size_t k = 0; k < C; ++k)
-				{
-					if(k == i)
-						continue;
+				T sum{};
+				for(size_t k = 0; k < i; ++k)
+					sum += lu[i][k] * lu[k][j];
 
-					m._data[j - 1][k > i ? k - 1 : k] = _data[j][k];
-				}
+				lu[i][j] = _data[i][j] - sum;
 			}
 
-			if(i%2 == 0)
-				det += _data[0][i] * m.determinant();
-			else
-				det -= _data[0][i] * m.determinant();
+			for(size_t j = i + 1; j < C; ++j)
+			{
+				T sum{};
+				for(size_t k = 0; k < i; ++k)
+					sum += lu[j][k] * lu[k][i];
+
+				lu[j][i] = (_data[j][i] - sum) / lu[i][i];
+			}
+
+			det *= lu[i][i];
 		}
+	
 		return det;
 	}
 
@@ -194,7 +201,7 @@ namespace ssml
 		{
 			for(size_t j = 0; j < C; ++j)
 			{
-				if(_data[i][j] != matrix._data[i][j])
+				if(!almost_equal(_data[i][j], matrix._data[i][j], 2))
 			 		return true;	
 			}
 		}

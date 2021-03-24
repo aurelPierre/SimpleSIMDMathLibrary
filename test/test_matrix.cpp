@@ -1,6 +1,8 @@
+#include "Matrix.h"
 #include "Matrix_r4f.h"
 
 #include "Logger.h"
+#include "Profiler.h"
 
 int main(int argc, char** argv)
 {
@@ -12,7 +14,7 @@ int main(int argc, char** argv)
 		2.f, 3.f, 3.f,
 		8.f, 10.f, 2.f
 	};
-		
+
 	float test_data4[16] = {	
 			5.f, 7.f, 9.f, 10.f,
 	 		2.f, 3.f, 3.f, 8.f,
@@ -59,12 +61,41 @@ int main(int argc, char** argv)
 	}
 
 	{
+		LOG(tlbx::INFO, "Starting unit test Matf4x4::determinant...")
+
+		ssml::Matf4 m(test_data4);
+		float det = m.determinant();
+
+		ASSERT(almost_equal(det, -361.f, 2), "Matf4x4::determinant is incorrect")
+		LOG(tlbx::INFO, "Unit test Matf4x4::determinant is done.")
+	}
+
+	{
+		LOG(tlbx::INFO, "Starting unit test Matf4x4::inverse...")
+
+		ssml::Matf4 m(test_data4);
+		ssml::Matf4 r = m.inverse();
+
+		float result_data[16] = {
+			-71.f / 361.f, -271.f / 361.f, 26.f / 361.f, 350.f / 361.f,
+			51.f / 361.f, 215.f / 361.f, 22.f / 361.f, -287.f / 361.f,
+			71.f / 361.f, -90.f / 361.f, -26.f / 361.f, 11.f / 361.f,
+			-28.f / 361.f, 66.f / 361.f, -5.f / 361.f, 16.f / 361.f
+		};
+
+		ssml::Matf4 result(result_data);
+
+		ASSERT((result == r), "Matf4x4::inverse is incorrect")
+		LOG(tlbx::INFO, "Unit test Matf4x4::inverse is done.")
+	}
+
+	{
 		LOG(tlbx::INFO, "Starting unit test Matf3x3::determinant...")
 
 		ssml::Matf3 m(test_data3);
-		
 		float det = m.determinant();
-		ASSERT((det == -16.f), "Matf3x3::determinant is incorrect")
+
+		ASSERT(almost_equal(det, -16.f, 2), "Matf3x3::determinant is incorrect")
 		LOG(tlbx::INFO, "Unit test Matf3x3::determinant is done.")
 	}
 

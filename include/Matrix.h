@@ -5,6 +5,17 @@
 
 #include <iostream>
 
+#include <cmath>
+#include <limits>
+#include <type_traits>
+
+template<class T>
+typename std::enable_if<!std::numeric_limits<T>::is_integer, bool>::type almost_equal(T x, T y, int ulp)
+{
+	return std::fabs(x - y) <= std::numeric_limits<float>::epsilon() * std::fabs(x + y) * ulp 
+		|| std::fabs(x - y) < std::numeric_limits<float>::min();
+}
+
 namespace ssml
 {
 	template<uint8_t R, uint8_t C, class T>
