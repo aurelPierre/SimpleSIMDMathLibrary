@@ -1,3 +1,5 @@
+#include <cstring>
+
 namespace ssml
 {
 	template<uint8_t R, uint8_t C, class T>
@@ -5,26 +7,24 @@ namespace ssml
 	{
 		if constexpr (is_squared)
 		{
-			for(size_t i = 0; i < R ; ++i)
+			for(size_t i = 0; i < row_size; ++i)
 				_data[i][i] = 1.f;
 		}
 	}
 
 	template<uint8_t R, uint8_t C, class T>
-	Matrix<R, C, T>::Matrix(float data[R*C])
+	Matrix<R, C, T>::Matrix(value_type data[row_size * col_size])
 	{
-		for(size_t i = 0; i < R; ++i)
-			for(size_t j = 0; j < C; ++j)
-				_data[i][j] = data[i * R + j];
+		memcpy(_data, data, sizeof(value_type) * row_size * col_size);
 	}
 
 	template<uint8_t R, uint8_t C, class T>
-	Matrix<R, C, T> Matrix<R, C, T>::scalarMult(const Matrix<R, C, T>& matrix) const
+	Matrix<R, C, T> Matrix<R, C, T>::scalarMult(const matrix_type& matrix) const
 	{
-		Matrix<R, C, T> m;
-		for(size_t i = 0; i < R; ++i)
+		matrix_type m;
+		for(size_t i = 0; i < row_size; ++i)
 		{
-			for(size_t j = 0; j < C; ++j)
+			for(size_t j = 0; j < col_size; ++j)
 				m._data[i][j] = _data[i][j] * matrix._data[i][j];
 		}
 		return m;
@@ -32,14 +32,14 @@ namespace ssml
 
 	template<uint8_t R, uint8_t C, class T>
 	template<uint8_t NC>
-	void Matrix<R, C, T>::mult(const Matrix<C, NC, T>& matrix, Matrix<R, NC, T>& out) const
+	void Matrix<R, C, T>::mult(const Matrix<col_size, NC, value_type>& matrix, Matrix<row_size, NC, value_type>& out) const
 	{
-		for(size_t i = 0; i < R; ++i)
+		for(size_t i = 0; i < row_size; ++i)
 		{
 			for(size_t j = 0; j < NC; ++j)
 			{
 				float d = 0.f; 
-				for(size_t k = 0; k < C; ++k)
+				for(size_t k = 0; k < col_size; ++k)
 					d += _data[i][k] * matrix._data[k][j];
 				out._data[i][j] = d;
 			}
@@ -51,10 +51,10 @@ namespace ssml
 	{
 		static_assert(is_squared, "matrix is not squared");
 
-		Matrix<R, C, T> m;
-		for(size_t i = 0; i < R; ++i)
+		matrix_type m;
+		for(size_t i = 0; i < row_size; ++i)
 		{
-			for(size_t j = 0; j < C; ++j)
+			for(size_t j = 0; j < col_size; ++j)
 				m._data[j][i] = _data[i][j];
 		}
 		return m;
@@ -65,24 +65,24 @@ namespace ssml
 	{
 		static_assert(is_squared, "matrix is not squared");
 		
-		T det { 1.f };
+		value_type det { 1.f };
 		
 		// LU decomposition
-		T lu[R][C];
-		for(size_t i = 0; i < R; ++i)
+		value_type lu[row_size][col_size];
+		for(size_t i = 0; i < row_size; ++i)
 		{
-			for(size_t j = i; j < C; ++j)
+			for(size_t j = i; j < col_size; ++j)
 			{
-				T sum{};
+				value_type sum{};
 				for(size_t k = 0; k < i; ++k)
 					sum += lu[i][k] * lu[k][j];
 
 				lu[i][j] = _data[i][j] - sum;
 			}
 
-			for(size_t j = i + 1; j < C; ++j)
+			for(size_t j = i + 1; j < col_size; ++j)
 			{
-				T sum{};
+				value_type sum{};
 				for(size_t k = 0; k < i; ++k)
 					sum += lu[j][k] * lu[k][i];
 
@@ -112,22 +112,22 @@ namespace ssml
 	{
 		static_assert(is_squared, "matrix is not squared");
 
-		T det = determinant();
+		value_type det = determinant();
 		if(det == 0.f)
 			return {};
 
-		Matrix<R, C, T> m;	
-		for(size_t i = 0; i < R; ++i)
+		matrix_type m;	
+		for(size_t i = 0; i < row_size; ++i)
 		{
-			for(size_t j = 0; j < C; ++j)
+			for(size_t j = 0; j < col_size; ++j)
 			{
-				Matrix<R - 1, C - 1, T> minor;
-				for(size_t k = 0; k < R; ++k)
+				Matrix<row_size - 1, col_size - 1, value_type> minor;
+				for(size_t k = 0; k < row_size; ++k)
 				{
 					if(k == i)
 						continue;
 
-					for(size_t l = 0; l < C; ++l)
+					for(size_t l = 0; l < col_size; ++l)
 					{
 						if(l == j)
 							continue;
@@ -146,13 +146,13 @@ namespace ssml
 	template<>
 	Matrix<2, 2, float> Matrix<2, 2, float>::inverse() const
 	{
-		float det = determinant();
+		value_type det = determinant();
 		if(det == 0.f)
 			return {};
 
-		float inv_det = 1.f / det;
+		value_type inv_det = 1.f / det;
 
-		Matrix<2, 2, float> m;
+		matrix_type m;
 		m._data[0][0] = inv_det * _data[1][1];
 		m._data[0][1] = inv_det * _data[0][1] * -1.f;
 		m._data[1][0] = inv_det * _data[1][0] * -1.f;
@@ -164,13 +164,13 @@ namespace ssml
 	template<>
 	Matrix<2, 2, double> Matrix<2, 2, double>::inverse() const
 	{
-		double det = determinant();
+		value_type det = determinant();
 		if(det == 0.f)
 			return {};
 
-		double inv_det = 1.f / det;
+		value_type inv_det = 1.f / det;
 
-		Matrix<2, 2, double> m;
+		matrix_type m;
 		m._data[0][0] = inv_det * _data[1][1];
 		m._data[0][1] = inv_det * _data[0][1] * -1.f;
 		m._data[1][0] = inv_det * _data[1][0] * -1.f;
@@ -181,21 +181,21 @@ namespace ssml
 
 	template<uint8_t R, uint8_t C, class T>
 	template<uint8_t NC>
-	Matrix<R, NC, T> Matrix<R, C, T>::operator*(const Matrix<C, NC, T>& matrix) const
+	Matrix<R, NC, T> Matrix<R, C, T>::operator*(const Matrix<col_size, NC, value_type>& matrix) const
 	{
-		Matrix m;
+		Matrix<row_size, NC, value_type> m;
 		mult(matrix, m);
 		return m;
 	}
 
 	template<uint8_t R, uint8_t C, class T>
-	bool Matrix<R, C, T>::operator==(const Matrix<R, C, T>& matrix) const
+	bool Matrix<R, C, T>::operator==(const matrix_type& matrix) const
 	{
 		return !((*this) != matrix);
 	}
 
 	template<uint8_t R, uint8_t C, class T>
-	bool Matrix<R, C, T>::operator!=(const Matrix<R, C, T>& matrix) const
+	bool Matrix<R, C, T>::operator!=(const matrix_type& matrix) const
 	{
 		for(size_t i = 0; i < R; ++i)
 		{

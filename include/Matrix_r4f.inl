@@ -1,60 +1,58 @@
-#include <emmintrin.h>
-#include <pmmintrin.h>
-#include <xmmintrin.h>
+#include <cstring>
+
 namespace ssml
 {
 	template<uint8_t R>
 	Matrix<R, 4, float>::Matrix()
+	 : _data {}
+	{}
+
+	template<>
+	Matrix<4, 4, float>::Matrix()
 	{
-		if constexpr (is_squared)
-		{
-			_data[0] = _mm_set_ps(0.f, 0.f, 0.f, 1.f);
-			_data[1] = _mm_set_ps(0.f, 0.f, 1.f, 0.f);
-			_data[2] = _mm_set_ps(0.f, 1.f, 0.f, 0.f);
-			_data[3] = _mm_set_ps(1.f, 0.f, 0.f, 0.f);
-		}
+		_data[0] = _mm_set_ps(0.f, 0.f, 0.f, 1.f);
+		_data[1] = _mm_set_ps(0.f, 0.f, 1.f, 0.f);
+		_data[2] = _mm_set_ps(0.f, 1.f, 0.f, 0.f);
+		_data[3] = _mm_set_ps(1.f, 0.f, 0.f, 0.f);
 	}
 
 	template<uint8_t R>
-	Matrix<R, 4, float>::Matrix(float data[4 * R])
+	Matrix<R, 4, float>::Matrix(value_type data[row_size * col_size])
 	{
-		for(size_t i = 0; i < R; ++i)
-			_data[i] = _mm_set_ps(data[i * 4 + 3], data[i * 4 + 2], data[i * 4 + 1], data[i * 4]);
+		memcpy(_raw, data, sizeof(value_type) * row_size * col_size);
 	}
 
 	template<uint8_t R>
-	Matrix<R, 4, float> Matrix<R, 4, float>::scalarMult(const Matrix<R, 4, float>& matrix) const
+	Matrix<R, 4, float> Matrix<R, 4, float>::scalarMult(const matrix_type& matrix) const
 	{
-		Matrix<R, 4, float> m;
-		for(size_t i = 0; i < R; ++i)
+		matrix_type m;
+		for(size_t i = 0; i < row_size; ++i)
 			m._data[i] = _mm_mul_ps(_data[i], matrix._data[i]);
 		return m;
 	}
 
 	template<uint8_t R>
-	void Matrix<R, 4, float>::mult(const Matrix<4, 4, float>& matrix, Matrix<R, 4, float>& out) const
+	void Matrix<R, 4, float>::mult(const Matrix<col_size, col_size, value_type>& matrix, matrix_type& out) const
 	{
-		for(size_t i = 0; i < R; ++i)
+		for(size_t i = 0; i < row_size; ++i)
 		{
-			out._data[i] = _mm_mul_ps(_mm_shuffle_ps(_data[i], _data[i], 0b00000000), matrix._data[0]);
-			out._data[i] = _mm_add_ps(out._data[i], _mm_mul_ps(_mm_shuffle_ps(_data[i], _data[i], 0b01010101), matrix._data[1]));
-			out._data[i] = _mm_add_ps(out._data[i], _mm_mul_ps(_mm_shuffle_ps(_data[i], _data[i], 0b10101010), matrix._data[2]));
-			out._data[i] = _mm_add_ps(out._data[i], _mm_mul_ps(_mm_shuffle_ps(_data[i], _data[i], 0b11111111), matrix._data[3]));
+			out._data[i] = _mm_mul_ps(_mm_shuffle_ps(_data[i], _data[i], 0x00), matrix._data[0]);
+			out._data[i] = _mm_add_ps(out._data[i], _mm_mul_ps(_mm_shuffle_ps(_data[i], _data[i], 0x55), matrix._data[1]));
+			out._data[i] = _mm_add_ps(out._data[i], _mm_mul_ps(_mm_shuffle_ps(_data[i], _data[i], 0xaa), matrix._data[2]));
+			out._data[i] = _mm_add_ps(out._data[i], _mm_mul_ps(_mm_shuffle_ps(_data[i], _data[i], 0xff), matrix._data[3]));
 		}
 	}
 
-	template<uint8_t R>
-	Matrix<R, 4, float> Matrix<R, 4, float>::transpose() const
+	template<>
+	Matrix<4, 4, float> Matrix<4, 4, float>::transpose() const
 	{
-		static_assert(is_squared, "matrix is not squared");
-	
 		__m128 r0 = _mm_unpacklo_ps(_data[0], _data[1]);
 		__m128 r1 = _mm_unpackhi_ps(_data[0], _data[1]);
 
 		__m128 r2 = _mm_unpacklo_ps(_data[2], _data[3]);
 		__m128 r3 = _mm_unpackhi_ps(_data[2], _data[3]);
 
-		Matrix<R, 4, float> m;
+		matrix_type m;
 
 		m._data[0] = _mm_movelh_ps(r0, r2);
 		m._data[1] = _mm_movehl_ps(r2, r0);
@@ -65,11 +63,9 @@ namespace ssml
 		return m;
 	}
 
-	template<uint8_t R>
-	float Matrix<R, 4, float>::determinant() const
+	template<>
+	float Matrix<4, 4, float>::determinant() const
 	{
-		static_assert(is_squared, "matrix is not squared");
-
 		__m128 m0 = _mm_movelh_ps(_data[0], _data[1]);
 		__m128 m1 = _mm_movehl_ps(_data[1], _data[0]);
 
@@ -87,11 +83,9 @@ namespace ssml
 		return det[0] * det[3] + det[1] * det[2] - (tr[0] + tr[1] + tr[2] + tr[3]);
 	}
 
-	template<uint8_t R>
-	Matrix<R, 4, float> Matrix<R, 4, float>::inverse() const
+	template<>
+	Matrix<4, 4, float> Matrix<4, 4, float>::inverse() const
 	{
-		static_assert(is_squared, "matrix is not squared");
-	
 		__m128 m0 = _mm_movelh_ps(_data[0], _data[1]);
 		__m128 m1 = _mm_movehl_ps(_data[1], _data[0]);
 
@@ -130,7 +124,7 @@ namespace ssml
 		z_ = _mm_mul_ps(z_, det);
 		w_ = _mm_mul_ps(w_, det);
 	
-		Matrix<R, 4, float> m;
+		matrix_type m;
 
 		m._data[0] = _mm_shuffle_ps(x_, y_, 0x77);
 		m._data[1] = _mm_shuffle_ps(x_, y_, 0x22);
@@ -141,26 +135,25 @@ namespace ssml
 	}
 
 	template<uint8_t R>
-	Matrix<R, 4, float> Matrix<R, 4, float>::operator*(const Matrix<4, 4, float>& matrix) const
+	Matrix<R, 4, float> Matrix<R, 4, float>::operator*(const Matrix<col_size, col_size, value_type>& matrix) const
 	{
-		Matrix<R, 4, float> m;
+		matrix_type m;
 		mult(matrix, m);
 		return m;
 	}
 
 	template<uint8_t R>
-	bool Matrix<R, 4, float>::operator==(const Matrix<R, 4, float>& matrix)	const
+	bool Matrix<R, 4, float>::operator==(const matrix_type& matrix)	const
 	{
-
 		return !((*this) != matrix);
 	}
 
 	template<uint8_t R>
-	bool Matrix<R, 4, float>::operator!=(const Matrix<R, 4, float>& matrix) const
+	bool Matrix<R, 4, float>::operator!=(const matrix_type& matrix) const
 	{
-		for(size_t i = 0; i < R; ++i)
+		for(size_t i = 0; i < row_size; ++i)
 		{
-			for(size_t j = 0; j < 4; ++j)
+			for(size_t j = 0; j < col_size; ++j)
 			{
 				if(!almost_equal(_data[i][j], matrix._data[i][j], 2))
 					return true;

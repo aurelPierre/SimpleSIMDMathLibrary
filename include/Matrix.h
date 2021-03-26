@@ -9,6 +9,7 @@
 #include <limits>
 #include <type_traits>
 
+// from cppreference
 template<class T>
 typename std::enable_if<!std::numeric_limits<T>::is_integer, bool>::type almost_equal(T x, T y, int ulp)
 {
@@ -21,27 +22,31 @@ namespace ssml
 	template<uint8_t R, uint8_t C, class T>
 	struct Matrix
 	{
-		static constexpr bool is_squared = R == C;
+		static constexpr uint8_t 	row_size 		= R;
+		static constexpr uint8_t 	col_size 		= C;
+		static constexpr bool 		is_squared 	= row_size == col_size;
 
-		T _data[R][C] {};
+		using value_type 	= T;
+		using matrix_type = Matrix<row_size, col_size, value_type>;
+
+		value_type _data[row_size][col_size] {};
 		
 		Matrix();
-		Matrix(float data[R*C]);
+		Matrix(value_type data[row_size * col_size]);
 
-		Matrix<R, C, T> scalarMult(const Matrix<R, C, T>& matrix) const;
-
+		Matrix<R, C, T> scalarMult(const matrix_type& matrix) const;
 		template<uint8_t NC>
-		void mult(const Matrix<C, NC, T>& matrix, Matrix<R, NC, T>& out) const;
+		void mult(const Matrix<col_size, NC, value_type>& matrix, Matrix<row_size, NC, value_type>& out) const;
 		
 		Matrix<R, C, T> transpose() const;
 		T determinant() const;
 		Matrix<R, C, T> inverse() const;
 
 		template<uint8_t NC>
-		Matrix<R, NC, T> operator*(const Matrix<C, NC, T>& matrix) const;
+		Matrix<R, NC, T> operator*(const Matrix<col_size, NC, value_type>& matrix) const;
 	
-		bool operator==(const Matrix<R, C, T>& matrix) const;
-		bool operator!=(const Matrix<R, C, T>& matrix) const;
+		bool operator==(const matrix_type& matrix) const;
+		bool operator!=(const matrix_type& matrix) const;
 	};
 
 	template<uint8_t R, uint8_t C, class T>
