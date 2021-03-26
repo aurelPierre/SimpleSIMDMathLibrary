@@ -1,5 +1,6 @@
 #include "Matrix.h"
 #include "Matrix_r4f.h"
+#include "Matrix_r2f.h"
 
 #include "Logger.h"
 #include "Profiler.h"
@@ -121,9 +122,9 @@ void test_mat3()
 
 	{
 		float result_inverse[9] = {
-			1.5f, -4.75f, 0.375f,
-			-1.25f, 3.875f, -0.1875f,
-			0.25f, -0.375f, -0.0625f
+			24.f / 16.f, -76.f / 16.f, 6.f / 16.f,
+			-20.f / 16.f, 62.f / 16.f, -3.f / 16.f,
+			4.f / 16.f, -6.f / 16.f, -1.f / 16.f
 		};
 
 		ssml::Matf3 m(test_data3);

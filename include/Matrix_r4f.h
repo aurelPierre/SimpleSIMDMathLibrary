@@ -34,6 +34,9 @@ namespace ssml
 
 		Matrix<R, 4, float> operator*(const Matrix<col_size, col_size, value_type>& matrix) const;
 
+		float* operator[](const uint8_t i);
+		const float* operator[](const uint8_t i) const;
+
 		bool operator==(const matrix_type& matrix) const;
 		bool operator!=(const matrix_type& matrix) const;
 	};

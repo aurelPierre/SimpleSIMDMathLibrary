@@ -25,7 +25,7 @@ namespace ssml
 		for(size_t i = 0; i < row_size; ++i)
 		{
 			for(size_t j = 0; j < col_size; ++j)
-				m._data[i][j] = _data[i][j] * matrix._data[i][j];
+				m[i][j] = _data[i][j] * matrix[i][j];
 		}
 		return m;
 	}
@@ -40,8 +40,8 @@ namespace ssml
 			{
 				float d = 0.f; 
 				for(size_t k = 0; k < col_size; ++k)
-					d += _data[i][k] * matrix._data[k][j];
-				out._data[i][j] = d;
+					d += _data[i][k] * matrix[k][j];
+				out[i][j] = d;
 			}
 		}
 	}
@@ -55,7 +55,7 @@ namespace ssml
 		for(size_t i = 0; i < row_size; ++i)
 		{
 			for(size_t j = 0; j < col_size; ++j)
-				m._data[j][i] = _data[i][j];
+				m[j][i] = _data[i][j];
 		}
 		return m;
 	}
@@ -126,32 +126,14 @@ namespace ssml
 						if(l == j)
 							continue;
 
-						minor._data[k > i ? k - 1 : k][l > j ? l - 1 : l] = _data[k][l];
+						minor[k > i ? k - 1 : k][l > j ? l - 1 : l] = _data[k][l];
 					}
 				}
 
-				m._data[j][i] = (((i+j)%2 == 1) ? minor.determinant() * -1.f : minor.determinant()) / det;
+				m[j][i] = (((i+j)%2 == 1) ? minor.determinant() * -1.f : minor.determinant()) / det;
 			}	
 		}
 
-		return m;
-	}
-
-	template<>
-	Matrix<2, 2, float> Matrix<2, 2, float>::inverse() const
-	{
-		value_type det = determinant();
-		if(det == 0.f)
-			return {};
-
-		value_type inv_det = 1.f / det;
-
-		matrix_type m;
-		m._data[0][0] = inv_det * _data[1][1];
-		m._data[0][1] = inv_det * _data[0][1] * -1.f;
-		m._data[1][0] = inv_det * _data[1][0] * -1.f;
-		m._data[1][1] = inv_det * _data[0][0];
-		
 		return m;
 	}
 
@@ -165,10 +147,10 @@ namespace ssml
 		value_type inv_det = 1.f / det;
 
 		matrix_type m;
-		m._data[0][0] = inv_det * _data[1][1];
-		m._data[0][1] = inv_det * _data[0][1] * -1.f;
-		m._data[1][0] = inv_det * _data[1][0] * -1.f;
-		m._data[1][1] = inv_det * _data[0][0];
+		m[0][0] = inv_det * _data[1][1];
+		m[0][1] = inv_det * _data[0][1] * -1.f;
+		m[1][0] = inv_det * _data[1][0] * -1.f;
+		m[1][1] = inv_det * _data[0][0];
 
 		return m;
 	}
@@ -180,6 +162,18 @@ namespace ssml
 		Matrix<row_size, NC, value_type> m;
 		mult(matrix, m);
 		return m;
+	}
+
+	template<uint8_t R, uint8_t C, class T>
+	T* Matrix<R, C, T>::operator[](const uint8_t i)
+	{
+		return _data[i];
+	}
+
+	template<uint8_t R, uint8_t C, class T>
+	const T* Matrix<R, C, T>::operator[](const uint8_t i) const
+	{
+		return _data[i];
 	}
 
 	template<uint8_t R, uint8_t C, class T>
@@ -195,7 +189,7 @@ namespace ssml
 		{
 			for(size_t j = 0; j < C; ++j)
 			{
-				if(!almost_equal(_data[i][j], matrix._data[i][j], 2))
+				if(!almost_equal(_data[i][j], matrix[i][j], 2))
 			 		return true;	
 			}
 		}
@@ -208,7 +202,7 @@ namespace ssml
 		for(size_t i = 0; i < R; ++i)
 		{
 			for(size_t j = 0; j < C; ++j)
-				os << '[' << obj._data[i][j] << ']';
+				os << '[' << obj[i][j] << ']';
 			os << '\n';
 		}
 		return os;

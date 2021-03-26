@@ -21,7 +21,7 @@ namespace ssml
 
 		union {
 			value_type 	_raw[row_size][col_size];
-			__m128 			_data[std::ceil(row_size / 2)];
+			__m128 			_data[row_size % 2 == 0 ? row_size / 2 : (row_size / 2) + 1];
 		};
 
 		Matrix();
@@ -35,6 +35,9 @@ namespace ssml
 		Matrix<R, 2, float> inverse() const;
 
 		Matrix<R, 2, float> operator*(const Matrix<col_size, col_size, value_type>& matrix) const;
+
+		float* operator[](const uint8_t i);
+		const float* operator[](const uint8_t i) const;
 
 		bool operator==(const matrix_type& matrix) const;
 		bool operator!=(const matrix_type& matrix) const;

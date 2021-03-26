@@ -44,7 +44,10 @@ namespace ssml
 
 		template<uint8_t NC>
 		Matrix<R, NC, T> operator*(const Matrix<col_size, NC, value_type>& matrix) const;
-	
+
+		T* operator[](const uint8_t i);
+		const T* operator[](const uint8_t i) const;
+
 		bool operator==(const matrix_type& matrix) const;
 		bool operator!=(const matrix_type& matrix) const;
 	};
@@ -63,5 +66,8 @@ namespace ssml
 }
 
 #include "Matrix.inl"
+
+#include "Matrix_r2f.h"
+#include "Matrix_r4f.h"
 
 #endif
