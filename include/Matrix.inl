@@ -96,12 +96,6 @@ namespace ssml
 	}
 
 	template<>
-	float Matrix<2, 2, float>::determinant() const
-	{
-		return _data[0][0] * _data[1][1] - _data[0][1] * _data[1][0];
-	}
-
-	template<>
 	double Matrix<2, 2, double>::determinant() const
 	{
 		return _data[0][0] * _data[1][1] - _data[0][1] * _data[1][0];

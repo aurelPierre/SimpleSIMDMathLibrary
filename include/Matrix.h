@@ -57,6 +57,9 @@ namespace ssml
 
 	using Matf3 = Matrix<3, 3, float>;
 	using Matf3x3 = Matf3;
+
+	using Matf2 = Matrix<2, 2, float>;
+	using Matf2x2 = Matf2;
 }
 
 #include "Matrix.inl"
