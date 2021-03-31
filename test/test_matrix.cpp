@@ -1,6 +1,4 @@
 #include "Matrix.h"
-#include "Matrix_r4f.h"
-#include "Matrix_r2f.h"
 
 #include "Logger.h"
 #include "Profiler.h"

@@ -68,6 +68,7 @@ namespace ssml
 #include "Matrix.inl"
 
 #include "Matrix_r2f.h"
+#include "Matrix_r3f.h"
 #include "Matrix_r4f.h"
 
 #endif
