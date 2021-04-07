@@ -33,19 +33,21 @@ if(CODE_COVERAGE AND CMAKE_CXX_COMPILER_ID MATCHES "GNU|Clang")
   endif()
 endif(CODE_COVERAGE AND CMAKE_CXX_COMPILER_ID MATCHES "GNU|Clang")
 
-add_library(SSML STATIC "")
+add_library(SSML INTERFACE)
 
-file(GLOB_RECURSE SOURCES src/*)
-target_sources(SSML PUBLIC ${SOURCES})
-target_include_directories(SSML PUBLIC include/)
+file(GLOB_RECURSE SSML_SOURCES src/*)
+target_sources(SSML INTERFACE ${SSML_SOURCES})
+target_include_directories(SSML INTERFACE include/)
 
-target_link_libraries(SSML PUBLIC ssml_coverage_config)
+target_link_libraries(SSML INTERFACE ssml_coverage_config)
 
 install(TARGETS SSML DESTINATION lib)
 
-
 # unit test directory
 add_subdirectory(test)
+
+# benchmark directory
+add_subdirectory(bench)
 
 # packaging system
 # linux supported
