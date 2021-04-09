@@ -120,15 +120,15 @@ namespace ssml
 	}
 
 	template<uint8_t R>
-	float* Matrix<R, 3, float>::operator[](const uint8_t i)
+	float& Matrix<R, 3, float>::operator[](const uint8_t i)
 	{
-		return _data[i];
+		return _data[i / row_size][i % row_size];
 	}
 
 	template<uint8_t R>
-	const float* Matrix<R, 3, float>::operator[](const uint8_t i) const
+	const float& Matrix<R, 3, float>::operator[](const uint8_t i) const
 	{
-		return _data[i];
+		return _data[i / row_size][i % row_size];
 	}
 
 	template<uint8_t R>

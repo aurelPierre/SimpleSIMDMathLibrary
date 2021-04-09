@@ -202,7 +202,7 @@ namespace ssml
 		for(size_t i = 0; i < R; ++i)
 		{
 			for(size_t j = 0; j < C; ++j)
-				os << '[' << obj[i][j] << ']';
+				os << '[' << obj[i * R + j] << ']';
 			os << '\n';
 		}
 		return os;

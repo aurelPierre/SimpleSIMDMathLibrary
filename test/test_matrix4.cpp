@@ -1,106 +1,149 @@
-#include "Matrix_r4f.h"
+#include <vector>
+#include <cstdlib>
+
+#include <Matrix_r4f.h>
+#include <glm/mat4x4.hpp>
 
 #include <gtest/gtest.h>
 
-TEST(Matf4, scalarMult)
+class T_Matf4 : public testing::Test
 {
-	float test_data[16] = {	
-			5.f, 7.f, 9.f, 10.f,
-	 		2.f, 3.f, 3.f, 8.f,
-			8.f, 10.f, 2.f, 3.f,
-			3.f, 3.f, 4.f, 8.f
- 	};
-
-	float result_scalarMult[16] = {
-		25.f, 49.f, 81.f, 100.f,
-		4.f, 9.f, 9.f, 64.f,
-		64.f, 100.f, 4.f, 9.f,
-		9.f, 9.f, 16.f, 64.f
-	};
+	std::vector<float> create_data_random()
+	{
+		std::srand(std::time(nullptr));
 	
-	ssml::Matf4 m(test_data);
-	ssml::Matf4 ms(result_scalarMult);
+		std::vector<float> test_data(16);
+		for(size_t i = 0; i < 16; ++i)
+			test_data[i] = std::rand();
+		
+		return test_data;
+	}
 
-	EXPECT_EQ(m.scalarMult(m), ms);
-}
+	ssml::Matf4 create_ssml_from(std::vector<float>& data)
+	{
+		ssml::Matf4 m;
+		for(size_t i = 0; i < 16; ++i)
+			m[i] = data[i];
+		return m;
+	}
 
-TEST(Matf4, transpose)
-{
-	float test_data[16] = {	
+	glm::mat4 create_glm_from(std::vector<float>& data)
+	{
+		glm::mat4 m;
+		for(size_t i = 0; i < 4; ++i)
+			for(size_t j = 0; j < 4; ++j)
+				m[i][j] = data[i * 4 + j];
+
+		return m;
+	}
+
+protected:
+
+	const uint8_t NB_ITERATION_RANDOM = 5;
+
+	ssml::Matf4 _sm;
+	glm::mat4 	_gm;
+
+	ssml::Matf4 _rsm;
+	glm::mat4 	_rgm;
+
+	T_Matf4()
+	{
+		std::vector<float> test_data {
 			5.f, 7.f, 9.f, 10.f,
 	 		2.f, 3.f, 3.f, 8.f,
 			8.f, 10.f, 2.f, 3.f,
 			3.f, 3.f, 4.f, 8.f
  	};
+		
+		_sm = create_ssml_from(test_data);
+		_gm = create_glm_from(test_data);
 
-	float result_transpose[16] = {
-		5.f, 2.f, 8.f, 3.f,
-		7.f, 3.f, 10.f, 3.f,
-		9.f, 3.f, 2.f, 4.f,
-		10.f, 8.f, 3.f, 8.f
-	};
-	
-	ssml::Matf4 m(test_data);
-	ssml::Matf4 mt(result_transpose);
+		generate_random_matrix();
+	}
 
-	EXPECT_EQ(m.transpose(), mt);
+	void generate_random_matrix()
+	{
+		std::vector<float> data = create_data_random();
+
+		_rsm = create_ssml_from(data);
+		_rgm = create_glm_from(data);
+	}
+};
+
+namespace ssml
+{
+	bool operator==(const ssml::Matf4& lhs, const glm::mat4& rhs)
+	{
+		for(size_t i = 0; i < 4; ++i)
+			for(size_t j = 0; j < 4; ++j)
+				if(!almost_equal(lhs[i * 4 + j], rhs[i][j], 2))
+					return false;
+		return true;
+	}
 }
 
-TEST(Matf4, determinant)
+namespace glm
 {
-	float test_data[16] = {	
-			5.f, 7.f, 9.f, 10.f,
-	 		2.f, 3.f, 3.f, 8.f,
-			8.f, 10.f, 2.f, 3.f,
-			3.f, 3.f, 4.f, 8.f
- 	};
-
-	ssml::Matf4 m(test_data);
-
-	EXPECT_EQ(m.determinant(), -361.f);
+	std::ostream& operator<<(std::ostream& os, const glm::mat4& obj)
+	{
+		for(size_t i = 0; i < 4; ++i)
+		{
+			for(size_t j = 0; j < 4; ++j)
+				os << '[' << obj[i][j] << ']';
+			os << '\n';
+		}
+		return os;
+	}
 }
 
-TEST(Matf4, inverse)
+TEST_F(T_Matf4, scalarMult)
 {
-	float test_data[16] = {	
-			5.f, 7.f, 9.f, 10.f,
-	 		2.f, 3.f, 3.f, 8.f,
-			8.f, 10.f, 2.f, 3.f,
-			3.f, 3.f, 4.f, 8.f
- 	};
-
-	float result_inverse[16] = {
-		-71.f / 361.f, -271.f / 361.f, 26.f / 361.f, 350.f / 361.f,
-		51.f / 361.f, 215.f / 361.f, 22.f / 361.f, -287.f / 361.f,
-		71.f / 361.f, -90.f / 361.f, -26.f / 361.f, 11.f / 361.f,
-		-28.f / 361.f, 66.f / 361.f, -5.f / 361.f, 16.f / 361.f
-	};
-
-	ssml::Matf4 m(test_data);
-	ssml::Matf4 mi(result_inverse);
-
-	EXPECT_EQ(m.inverse(), mi);
+	EXPECT_EQ(_sm.scalarMult(_sm), glm::matrixCompMult(_gm, _gm));
+	for(size_t i = 0; i < NB_ITERATION_RANDOM; ++i)
+	{
+		generate_random_matrix();
+		EXPECT_EQ(_rsm.scalarMult(_rsm), glm::matrixCompMult(_rgm, _rgm));
+	}
 }
 
-TEST(Matf4, mult)
+TEST_F(T_Matf4, transpose)
 {
-	float test_data[16] = {	
-			5.f, 7.f, 9.f, 10.f,
-	 		2.f, 3.f, 3.f, 8.f,
-			8.f, 10.f, 2.f, 3.f,
-			3.f, 3.f, 4.f, 8.f
- 	};
+	EXPECT_EQ(_sm.transpose(), glm::transpose(_gm));
+	for(size_t i = 0; i < NB_ITERATION_RANDOM; ++i)
+	{
+		generate_random_matrix();
+		EXPECT_EQ(_rsm.transpose(), glm::transpose(_rgm));
+	}
+}
 
-	float result_data[16] = {
-		141.f, 176.f, 124.f, 213.f,
-		64.f, 77.f, 65.f, 117.f,
-		85.f, 115.f, 118.f, 190.f,
-		77.f, 94.f, 76.f, 130.f
-	};
+TEST_F(T_Matf4, determinant)
+{
+	EXPECT_FLOAT_EQ(_sm.determinant(), glm::determinant(_gm));
+	for(size_t i = 0; i < NB_ITERATION_RANDOM; ++i)
+	{
+		generate_random_matrix();
+		EXPECT_FLOAT_EQ(_rsm.determinant(), glm::determinant(_rgm));
+	}
+}
 
-	ssml::Matf4 m(test_data);
-	ssml::Matf4 result(result_data);
+TEST_F(T_Matf4, inverse)
+{
+	EXPECT_EQ(_sm.inverse(), glm::inverse(_gm));
+	for(size_t i = 0; i < NB_ITERATION_RANDOM; ++i)
+	{
+		generate_random_matrix();
+		EXPECT_EQ(_rsm.inverse(), glm::inverse(_rgm));
+	}
+}
 
-	EXPECT_EQ(m * m, result);
+TEST_F(T_Matf4, mult)
+{
+	EXPECT_EQ(_sm * _sm, _gm * _gm);
+	for(size_t i = 0; i < NB_ITERATION_RANDOM; ++i)
+	{
+		generate_random_matrix();
+		EXPECT_EQ(_rsm * _rsm, _rgm * _rgm);
+	}
 }
 
