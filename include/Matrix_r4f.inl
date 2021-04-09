@@ -145,13 +145,13 @@ namespace ssml
 	template<uint8_t R>
 	float* Matrix<R, 4, float>::operator[](const uint8_t i)
 	{
-		return _data[i];
+		return _raw[i];
 	}
 
 	template<uint8_t R>
 	const float* Matrix<R, 4, float>::operator[](const uint8_t i) const
 	{
-		return _data[i];
+		return _raw[i];
 	}
 
 	template<uint8_t R>

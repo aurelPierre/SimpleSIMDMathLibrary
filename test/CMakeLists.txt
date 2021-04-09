@@ -1,7 +1,15 @@
-include(CTest)
+enable_testing()
+include(GoogleTest)
 
-add_executable(test_matrix test_matrix.cpp)
-target_link_libraries(test_matrix SSML)
-target_link_libraries(test_matrix Toolbox)
+function(test name)
+	add_executable(${name} ${name}.cpp)
+	target_link_libraries(${name} ssml)
+	target_link_libraries(${name} gtest_main)
 
-add_test(NAME Runs_matrix COMMAND test_matrix)
+	add_test(NAME Run_${name} COMMAND ${name})
+endfunction()
+
+test(test_matrix2)
+test(test_matrix3)
+test(test_matrix4)
+

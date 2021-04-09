@@ -1,6 +1,6 @@
 cmake_minimum_required(VERSION 3.10)
 
-project(SSML VERSION 0.1)
+project(ssml VERSION 0.1)
 
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED True)
@@ -33,15 +33,15 @@ if(CODE_COVERAGE AND CMAKE_CXX_COMPILER_ID MATCHES "GNU|Clang")
   endif()
 endif(CODE_COVERAGE AND CMAKE_CXX_COMPILER_ID MATCHES "GNU|Clang")
 
-add_library(SSML INTERFACE)
+add_library(ssml INTERFACE)
 
 file(GLOB_RECURSE SSML_SOURCES src/*)
-target_sources(SSML INTERFACE ${SSML_SOURCES})
-target_include_directories(SSML INTERFACE include/)
+target_sources(ssml INTERFACE ${SSML_SOURCES})
+target_include_directories(ssml INTERFACE include/)
 
-target_link_libraries(SSML INTERFACE ssml_coverage_config)
+target_link_libraries(ssml INTERFACE ssml_coverage_config)
 
-install(TARGETS SSML DESTINATION lib)
+install(TARGETS ssml DESTINATION lib)
 
 # unit test directory
 add_subdirectory(test)
