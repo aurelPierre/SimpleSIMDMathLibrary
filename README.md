@@ -15,6 +15,7 @@ It is written as an experimental library to learn SIMD intrinsics and see how it
  |Matrix4x4| &#10004;* | &#10004; ||
  |Matrix3x3| &#10004;* | &#10004; ||
  |Matrix2x2| &#10004; | &#10004; ||
+
  \* *These types are not fully functional*
 
 ### Benchmark
@@ -76,6 +77,7 @@ Made on my laptop with an [Intel i7-7700HQ](https://ark.intel.com/content/www/us
 | determinant | 0.317 | 0.360 | 0.88 |
 | mult | 0.349 | 0.342 | 1.02 |
 | inverse | 0.336 | 0.359 | 0.93 |
+
 \* *these functions are not working yet* 
 
 ### License
