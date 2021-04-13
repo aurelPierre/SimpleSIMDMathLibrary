@@ -23,8 +23,9 @@ class T_Matf3 : public testing::Test
 	ssml::Matf3 create_ssml_from(std::vector<float>& data)
 	{
 		ssml::Matf3 m;
-		for(size_t i = 0; i < 9; ++i)
-			m[i] = data[i];
+		for(size_t i = 0; i < 3; ++i)
+			for(size_t j = 0; j < 3; ++j)
+				m[i][j] = data[i * 3 + j];
 		return m;
 	}
 
@@ -77,7 +78,7 @@ namespace ssml
 	{
 		for(size_t i = 0; i < 3; ++i)
 			for(size_t j = 0; j < 3; ++j)
-				if(!almost_equal(lhs[i * 3 + j], rhs[i][j], 2))
+				if(!almost_equal(lhs[i][j], rhs[i][j], 2))
 					return false;
 		return true;
 	}
@@ -99,41 +100,41 @@ namespace glm
 
 TEST_F(T_Matf3, scalarMult)
 {
-	EXPECT_EQ(_sm.scalarMult(_sm), glm::matrixCompMult(_gm, _gm));
+	EXPECT_EQ(ssml::scalarMult(_sm, _sm), glm::matrixCompMult(_gm, _gm));
 	for(size_t i = 0; i < NB_ITERATION_RANDOM; ++i)
 	{
 		generate_random_matrix();
-		EXPECT_EQ(_rsm.scalarMult(_rsm), glm::matrixCompMult(_rgm, _rgm));
+		EXPECT_EQ(ssml::scalarMult(_rsm, _rsm), glm::matrixCompMult(_rgm, _rgm));
 	}
 }
 
 TEST_F(T_Matf3, transpose)
 {
-	EXPECT_EQ(_sm.transpose(), glm::transpose(_gm));
+	EXPECT_EQ(ssml::transpose(_sm), glm::transpose(_gm));
 	for(size_t i = 0; i < NB_ITERATION_RANDOM; ++i)
 	{
 		generate_random_matrix();
-		EXPECT_EQ(_rsm.transpose(), glm::transpose(_rgm));
+		EXPECT_EQ(ssml::transpose(_rsm), glm::transpose(_rgm));
 	}
 }
 
 TEST_F(T_Matf3, determinant)
 {
-	EXPECT_FLOAT_EQ(_sm.determinant(), glm::determinant(_gm));
+	EXPECT_FLOAT_EQ(ssml::determinant(_sm), glm::determinant(_gm));
 	for(size_t i = 0; i < NB_ITERATION_RANDOM; ++i)
 	{
 		generate_random_matrix();
-		EXPECT_FLOAT_EQ(_rsm.determinant(), glm::determinant(_rgm));
+		EXPECT_FLOAT_EQ(ssml::determinant(_rsm), glm::determinant(_rgm));
 	}
 }
 
 TEST_F(T_Matf3, inverse)
 {
-	EXPECT_EQ(_sm.inverse(), glm::inverse(_gm));
+	EXPECT_EQ(ssml::inverse(_sm), glm::inverse(_gm));
 	for(size_t i = 0; i < NB_ITERATION_RANDOM; ++i)
 	{
 		generate_random_matrix();
-		EXPECT_EQ(_rsm.inverse(), glm::inverse(_rgm));
+		EXPECT_EQ(ssml::inverse(_rsm), glm::inverse(_rgm));
 	}
 }
 

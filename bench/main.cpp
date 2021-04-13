@@ -38,7 +38,7 @@ static void BM_ssml_scalarMult(benchmark::State& state)
 	ssml::Matrix<R, R, T> m = create_ssml_matrix<R, R, T>();
 	ssml::Matrix<R, R, T> n = create_ssml_matrix<R, R, T>();
 	for(auto _ : state)
-		benchmark::DoNotOptimize(m.scalarMult(n));
+		benchmark::DoNotOptimize(ssml::scalarMult(m, n));
 }
 BENCHMARK_TEMPLATE(BM_ssml_scalarMult, 4, float);
 BENCHMARK_TEMPLATE(BM_ssml_scalarMult, 3, float);
@@ -61,7 +61,7 @@ static void BM_ssml_transpose(benchmark::State& state)
 {
 	ssml::Matrix<R, R, T> m = create_ssml_matrix<R, R, T>();
 	for(auto _ : state)
-		benchmark::DoNotOptimize(m.transpose());
+		benchmark::DoNotOptimize(ssml::transpose(m));
 }
 BENCHMARK_TEMPLATE(BM_ssml_transpose, 4, float);
 BENCHMARK_TEMPLATE(BM_ssml_transpose, 3, float);
@@ -83,7 +83,7 @@ static void BM_ssml_determinant(benchmark::State& state)
 {
 	ssml::Matrix<R, R, T> m = create_ssml_matrix<R, R, T>();
 	for(auto _ : state)
-		benchmark::DoNotOptimize(m.determinant());
+		benchmark::DoNotOptimize(ssml::determinant(m));
 }
 BENCHMARK_TEMPLATE(BM_ssml_determinant, 4, float);
 BENCHMARK_TEMPLATE(BM_ssml_determinant, 3, float);
@@ -129,7 +129,7 @@ static void BM_ssml_inverse(benchmark::State& state)
 {
 	ssml::Matrix<R, R, T> m = create_ssml_matrix<R, R, T>();
 	for(auto _ : state)
-		benchmark::DoNotOptimize(m.inverse());
+		benchmark::DoNotOptimize(ssml::inverse(m));
 }
 BENCHMARK_TEMPLATE(BM_ssml_inverse, 4, float);
 BENCHMARK_TEMPLATE(BM_ssml_inverse, 3, float);

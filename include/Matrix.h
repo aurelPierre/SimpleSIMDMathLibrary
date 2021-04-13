@@ -19,38 +19,68 @@ typename std::enable_if<!std::numeric_limits<T>::is_integer, bool>::type almost_
 
 namespace ssml
 {
-	template<uint8_t R, uint8_t C, class T>
+	using matrix_size_type = size_t;
+
+	template<matrix_size_type S, class T>
+	struct Vector
+	{
+		static constexpr matrix_size_type size = S;
+
+		using value_type = T;
+
+		value_type _data[size]{};
+
+		value_type& operator[](const matrix_size_type i)
+		{
+			return _data[i];
+		}
+
+		const value_type& operator[](const matrix_size_type i) const
+		{
+			return _data[i];
+		}
+	};
+
+	template<matrix_size_type R, matrix_size_type C, class T>
 	struct Matrix
 	{
-		static constexpr uint8_t 	row_size 		= R;
-		static constexpr uint8_t 	col_size 		= C;
-		static constexpr bool 		is_squared 	= row_size == col_size;
+		static constexpr matrix_size_type	row_size 		= R;
+		static constexpr matrix_size_type col_size 		= C;
+		static constexpr bool 						is_squared 	= row_size == col_size;
 
 		using value_type 	= T;
+		using row_type 		= Vector<C, T>;
 		using matrix_type = Matrix<row_size, col_size, value_type>;
 
-		value_type _data[row_size][col_size] {};
+		row_type _data[row_size];
 		
 		Matrix();
 		Matrix(value_type data[row_size * col_size]);
 
-		Matrix<R, C, T> scalarMult(const matrix_type& matrix) const;
-		template<uint8_t NC>
-		void mult(const Matrix<col_size, NC, value_type>& matrix, Matrix<row_size, NC, value_type>& out) const;
-		
-		Matrix<R, C, T> transpose() const;
-		T determinant() const;
-		Matrix<R, C, T> inverse() const;
-
-		template<uint8_t NC>
-		Matrix<R, NC, T> operator*(const Matrix<col_size, NC, value_type>& matrix) const;
-
-		T* operator[](const uint8_t i);
-		const T* operator[](const uint8_t i) const;
-
-		bool operator==(const matrix_type& matrix) const;
-		bool operator!=(const matrix_type& matrix) const;
+		row_type& operator[](const matrix_size_type i);
+		const row_type& operator[](const matrix_size_type i) const;
 	};
+	
+	template<matrix_size_type R, matrix_size_type C, class T>
+	Matrix<R, C, T> scalarMult(const Matrix<R, C, T>& lhs, const Matrix<R, C, T>& rhs);
+	
+	template<matrix_size_type R, class T>
+	Matrix<R, R, T> transpose(const Matrix<R, R, T>& obj);
+	
+	template<matrix_size_type R, class T>
+	T determinant(const Matrix<R, R, T>& obj);
+
+	template<matrix_size_type R, class T>
+	Matrix<R, R, T> inverse(const Matrix<R, R, T>& obj);
+
+	template<matrix_size_type R, matrix_size_type C, class T, matrix_size_type NC>
+	Matrix<R, NC, T> operator*(const Matrix<R, C, T>& lhs, const Matrix<C, NC, T>& rhs);
+
+	template<matrix_size_type R, matrix_size_type C, class T>
+	bool operator==(const Matrix<R, C, T>& lhs, const Matrix<R, C, T>& rhs);
+
+	template<matrix_size_type R, matrix_size_type C, class T>
+	bool operator!=(const Matrix<R, C, T>& lhs, const Matrix<R, C, T>& rhs);
 
 	template<uint8_t R, uint8_t C, class T>
 	std::ostream& operator<<(std::ostream& os, const Matrix<R, C, T>& obj);

@@ -1,10 +1,8 @@
-#include <cstring>
-
 namespace ssml
 {
-	template<uint8_t R>
+	template<matrix_size_type R>
 	Matrix<R, 4, float>::Matrix()
-	 : _data {}
+	 : _row {}
 	{}
 
 	template<>
@@ -16,43 +14,43 @@ namespace ssml
 		_data[3] = _mm_set_ps(1.f, 0.f, 0.f, 0.f);
 	}
 
-	template<uint8_t R>
+	template<matrix_size_type R>
 	Matrix<R, 4, float>::Matrix(value_type data[row_size * col_size])
 	{
-		memcpy(_raw, data, sizeof(value_type) * row_size * col_size);
+		memcpy(_row, data, sizeof(value_type) * row_size * col_size);
 	}
 
-	template<uint8_t R>
-	Matrix<R, 4, float> Matrix<R, 4, float>::scalarMult(const matrix_type& matrix) const
+	template<matrix_size_type R>
+	typename Matrix<R, 4, float>::row_type& Matrix<R, 4, float>::operator[](const matrix_size_type i)
 	{
-		matrix_type m;
-		for(size_t i = 0; i < row_size; ++i)
-			m._data[i] = _mm_mul_ps(_data[i], matrix._data[i]);
+		return _row[i];
+	}
+
+	template<matrix_size_type R>
+	const typename Matrix<R, 4, float>::row_type& Matrix<R, 4, float>::operator[](const matrix_size_type i) const
+	{
+		return _row[i];
+	}
+
+	template<matrix_size_type R>
+	Matrix<R, 4, float> scalarMult(const Matrix<R, 4, float>& lhs, const Matrix<R, 4, float>& rhs)
+	{
+		Matrix<R, 4, float> m;
+		for(matrix_size_type i = 0; i < R; ++i)
+			m._data[i] = _mm_mul_ps(lhs._data[i], rhs._data[i]);
 		return m;
 	}
 
-	template<uint8_t R>
-	void Matrix<R, 4, float>::mult(const Matrix<col_size, col_size, value_type>& matrix, matrix_type& out) const
-	{
-		for(size_t i = 0; i < row_size; ++i)
-		{
-			out._data[i] = _mm_mul_ps(_mm_shuffle_ps(_data[i], _data[i], 0x00), matrix._data[0]);
-			out._data[i] = _mm_add_ps(out._data[i], _mm_mul_ps(_mm_shuffle_ps(_data[i], _data[i], 0x55), matrix._data[1]));
-			out._data[i] = _mm_add_ps(out._data[i], _mm_mul_ps(_mm_shuffle_ps(_data[i], _data[i], 0xaa), matrix._data[2]));
-			out._data[i] = _mm_add_ps(out._data[i], _mm_mul_ps(_mm_shuffle_ps(_data[i], _data[i], 0xff), matrix._data[3]));
-		}
-	}
-
 	template<>
-	Matrix<4, 4, float> Matrix<4, 4, float>::transpose() const
+	Matrix<4, 4, float> transpose(const Matrix<4, 4, float>& obj)
 	{
-		__m128 r0 = _mm_unpacklo_ps(_data[0], _data[1]);
-		__m128 r1 = _mm_unpackhi_ps(_data[0], _data[1]);
+		__m128 r0 = _mm_unpacklo_ps(obj._data[0], obj._data[1]);
+		__m128 r1 = _mm_unpackhi_ps(obj._data[0], obj._data[1]);
 
-		__m128 r2 = _mm_unpacklo_ps(_data[2], _data[3]);
-		__m128 r3 = _mm_unpackhi_ps(_data[2], _data[3]);
+		__m128 r2 = _mm_unpacklo_ps(obj._data[2], obj._data[3]);
+		__m128 r3 = _mm_unpackhi_ps(obj._data[2], obj._data[3]);
 
-		matrix_type m;
+		Matrix<4, 4, float> m;
 
 		m._data[0] = _mm_movelh_ps(r0, r2);
 		m._data[1] = _mm_movehl_ps(r2, r0);
@@ -64,16 +62,16 @@ namespace ssml
 	}
 
 	template<>
-	float Matrix<4, 4, float>::determinant() const
+	float determinant(const Matrix<4, 4, float>& obj)
 	{
-		__m128 m0 = _mm_movelh_ps(_data[0], _data[1]);
-		__m128 m1 = _mm_movehl_ps(_data[1], _data[0]);
+		__m128 m0 = _mm_movelh_ps(obj._data[0], obj._data[1]);
+		__m128 m1 = _mm_movehl_ps(obj._data[1], obj._data[0]);
 
-		__m128 m2 = _mm_movelh_ps(_data[2], _data[3]);
-		__m128 m3 = _mm_movehl_ps(_data[3], _data[2]);
+		__m128 m2 = _mm_movelh_ps(obj._data[2], obj._data[3]);
+		__m128 m3 = _mm_movehl_ps(obj._data[3], obj._data[2]);
 
-		__m128 det = _mm_sub_ps(_mm_mul_ps(_mm_shuffle_ps(_data[0], _data[2], 0x88), _mm_shuffle_ps(_data[1], _data[3], 0xdd)),
-			 	_mm_mul_ps(_mm_shuffle_ps(_data[0], _data[2], 0xdd), _mm_shuffle_ps(_data[1], _data[3], 0x88)));
+		__m128 det = _mm_sub_ps(_mm_mul_ps(_mm_shuffle_ps(obj._data[0], obj._data[2], 0x88), _mm_shuffle_ps(obj._data[1], obj._data[3], 0xdd)),
+			 	_mm_mul_ps(_mm_shuffle_ps(obj._data[0], obj._data[2], 0xdd), _mm_shuffle_ps(obj._data[1], obj._data[3], 0x88)));
 
 		__m128 m0_m1 = _mm_sub_ps(_mm_mul_ps(_mm_shuffle_ps(m0, m0, 0x0f), m1), _mm_mul_ps(_mm_shuffle_ps(m0, m0, 0xa5), _mm_shuffle_ps(m1, m1, 0x4e)));
 		__m128 m3_m2 = _mm_sub_ps(_mm_mul_ps(_mm_shuffle_ps(m3, m3, 0x0f), m2), _mm_mul_ps(_mm_shuffle_ps(m3, m3, 0xa5), _mm_shuffle_ps(m2, m2, 0x4e)));
@@ -84,16 +82,16 @@ namespace ssml
 	}
 
 	template<>
-	Matrix<4, 4, float> Matrix<4, 4, float>::inverse() const
+	Matrix<4, 4, float> inverse(const Matrix<4, 4, float>& obj)
 	{
-		__m128 m0 = _mm_movelh_ps(_data[0], _data[1]);
-		__m128 m1 = _mm_movehl_ps(_data[1], _data[0]);
+		__m128 m0 = _mm_movelh_ps(obj._data[0], obj._data[1]);
+		__m128 m1 = _mm_movehl_ps(obj._data[1], obj._data[0]);
 
-		__m128 m2 = _mm_movelh_ps(_data[2], _data[3]);
-		__m128 m3 = _mm_movehl_ps(_data[3], _data[2]);
+		__m128 m2 = _mm_movelh_ps(obj._data[2], obj._data[3]);
+		__m128 m3 = _mm_movehl_ps(obj._data[3], obj._data[2]);
 
-		__m128 det = _mm_sub_ps(_mm_mul_ps(_mm_shuffle_ps(_data[0], _data[2], 0x88), _mm_shuffle_ps(_data[1], _data[3], 0xdd)),
-			 	_mm_mul_ps(_mm_shuffle_ps(_data[0], _data[2], 0xdd), _mm_shuffle_ps(_data[1], _data[3], 0x88)));
+		__m128 det = _mm_sub_ps(_mm_mul_ps(_mm_shuffle_ps(obj._data[0], obj._data[2], 0x88), _mm_shuffle_ps(obj._data[1], obj._data[3], 0xdd)),
+			 		_mm_mul_ps(_mm_shuffle_ps(obj._data[0], obj._data[2], 0xdd), _mm_shuffle_ps(obj._data[1], obj._data[3], 0x88)));
 
 		__m128 m0_m1 = _mm_sub_ps(_mm_mul_ps(_mm_shuffle_ps(m0, m0, 0x0f), m1), _mm_mul_ps(_mm_shuffle_ps(m0, m0, 0xa5), _mm_shuffle_ps(m1, m1, 0x4e)));
 		__m128 m3_m2 = _mm_sub_ps(_mm_mul_ps(_mm_shuffle_ps(m3, m3, 0x0f), m2), _mm_mul_ps(_mm_shuffle_ps(m3, m3, 0xa5), _mm_shuffle_ps(m2, m2, 0x4e)));
@@ -124,7 +122,7 @@ namespace ssml
 		z_ = _mm_mul_ps(z_, det);
 		w_ = _mm_mul_ps(w_, det);
 	
-		matrix_type m;
+		Matrix<4, 4, float> m;
 
 		m._data[0] = _mm_shuffle_ps(x_, y_, 0x77);
 		m._data[1] = _mm_shuffle_ps(x_, y_, 0x22);
@@ -134,43 +132,19 @@ namespace ssml
 		return m;
 	}
 
-	template<uint8_t R>
-	Matrix<R, 4, float> Matrix<R, 4, float>::operator*(const Matrix<col_size, col_size, value_type>& matrix) const
+	template<matrix_size_type R>
+	Matrix<R, 4, float> operator*(const Matrix<R, 4, float>& lhs, const Matrix<4, 4, float>& rhs)
 	{
-		matrix_type m;
-		mult(matrix, m);
-		return m;
-	}
-
-	template<uint8_t R>
-	float& Matrix<R, 4, float>::operator[](const uint8_t i)
-	{
-		return _raw[i / row_size][i % row_size];
-	}
-
-	template<uint8_t R>
-	const float& Matrix<R, 4, float>::operator[](const uint8_t i) const
-	{
-		return _raw[i / row_size][i % row_size];
-	}
-
-	template<uint8_t R>
-	bool Matrix<R, 4, float>::operator==(const matrix_type& matrix)	const
-	{
-		return !((*this) != matrix);
-	}
-
-	template<uint8_t R>
-	bool Matrix<R, 4, float>::operator!=(const matrix_type& matrix) const
-	{
-		for(size_t i = 0; i < row_size; ++i)
+		Matrix<R, 4, float> m;
+		
+		for(matrix_size_type i = 0; i < R; ++i)
 		{
-			for(size_t j = 0; j < col_size; ++j)
-			{
-				if(!almost_equal(_data[i][j], matrix._data[i][j], 2))
-					return true;
-			}
+			m._data[i] = _mm_mul_ps(_mm_shuffle_ps(lhs._data[i], lhs._data[i], 0x00), rhs._data[0]);
+			m._data[i] = _mm_add_ps(m._data[i], _mm_mul_ps(_mm_shuffle_ps(lhs._data[i], lhs._data[i], 0x55), rhs._data[1]));
+			m._data[i] = _mm_add_ps(m._data[i], _mm_mul_ps(_mm_shuffle_ps(lhs._data[i], lhs._data[i], 0xaa), rhs._data[2]));
+			m._data[i] = _mm_add_ps(m._data[i], _mm_mul_ps(_mm_shuffle_ps(lhs._data[i], lhs._data[i], 0xff), rhs._data[3]));
 		}
-		return false;
+
+		return m;
 	}
 }
