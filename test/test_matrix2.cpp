@@ -14,7 +14,7 @@ class T_Matf2 : public testing::Test
 	
 		std::vector<float> test_data(4);
 		for(size_t i = 0; i < 4; ++i)
-			test_data[i] = std::rand();
+			test_data[i] = std::rand() % 1000;
 		
 		return test_data;
 	}
@@ -76,7 +76,7 @@ namespace ssml
 	{
 		for(size_t i = 0; i < 2; ++i)
 			for(size_t j = 0; j < 2; ++j)
-				if(!almost_equal(lhs[i][j], rhs[i][j], 2))
+				if(!almost_equal(lhs[i][j], rhs[i][j], 4))
 					return false;
 		return true;
 	}

@@ -1,3 +1,4 @@
+#include <limits>
 #include <vector>
 #include <cstdlib>
 
@@ -14,7 +15,7 @@ class T_Matf4 : public testing::Test
 	
 		std::vector<float> test_data(16);
 		for(size_t i = 0; i < 16; ++i)
-			test_data[i] = std::rand();
+			test_data[i] = std::rand() % 1000;
 		
 		return test_data;
 	}
@@ -78,7 +79,7 @@ namespace ssml
 	{
 		for(size_t i = 0; i < 4; ++i)
 			for(size_t j = 0; j < 4; ++j)
-				if(!almost_equal(lhs[i][j], rhs[i][j], 2))
+				if(!almost_equal(lhs[i][j], rhs[i][j], 4))
 					return false;
 		return true;
 	}
@@ -134,7 +135,7 @@ TEST_F(T_Matf4, inverse)
 	for(size_t i = 0; i < NB_ITERATION_RANDOM; ++i)
 	{
 		generate_random_matrix();
-		EXPECT_EQ(ssml::inverse(_rsm), glm::inverse(_rgm));
+		EXPECT_EQ(ssml::inverse(_rsm), glm::inverse(_rgm)) << "data: " << _rsm;
 	}
 }
 
