@@ -22,10 +22,7 @@ class T_Matf3 : public testing::Test
 
 	ssml::Matf3 create_ssml_from(std::vector<float>& data)
 	{
-		ssml::Matf3 m;
-		for(size_t i = 0; i < 3; ++i)
-			for(size_t j = 0; j < 3; ++j)
-				m[i][j] = data[i * 3 + j];
+		ssml::Matf3 m(data.data());
 		return m;
 	}
 

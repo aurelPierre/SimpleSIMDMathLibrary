@@ -22,10 +22,7 @@ class T_Matf4 : public testing::Test
 
 	ssml::Matf4 create_ssml_from(std::vector<float>& data)
 	{
-		ssml::Matf4 m;
-		for(size_t i = 0; i < 4; ++i)
-			for(size_t j = 0; j < 4; ++j)
-				m[i][j] = data[i * 4 + j];
+		ssml::Matf4 m(data.data());
 		return m;
 	}
 

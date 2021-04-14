@@ -21,10 +21,7 @@ class T_Matf2 : public testing::Test
 
 	ssml::Matf2 create_ssml_from(std::vector<float>& data)
 	{
-		ssml::Matf2 m;
-		for(size_t i = 0; i < 2; ++i)
-			for(size_t j = 0; j < 2; ++j)
-				m[i][j] = data[i * 2 + j];
+		ssml::Matf2 m(data.data());
 		return m;
 	}
 
